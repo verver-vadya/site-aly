@@ -1,0 +1,28 @@
+/* A continuous panel avoids seams between independently composited patches. */
+.bloom-menu{display:none}
+/* Named View Transition layers create stacking contexts: keep the header above main. */
+header{position:relative;z-index:30}
+morph-icon{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;flex-shrink:0}
+morph-icon svg{display:block;width:22px!important;height:22px!important;flex-shrink:0}
+morph-icon[data-care-icon] svg{width:20px!important;height:20px!important}
+.care summary{display:flex;align-items:center;justify-content:space-between;gap:16px;list-style:none}
+.care summary::-webkit-details-marker{display:none}
+@media(max-width:600px){
+ .bloom-menu{display:block;position:relative;top:.5px;width:44px;height:44px;margin-left:auto;z-index:20;flex-shrink:0;isolation:isolate}
+ .bloom-menu::before{content:'';position:absolute;inset:0;border-radius:50%;background:var(--red);pointer-events:none;opacity:1;transition:opacity 160ms var(--ease-soft)}
+ .bloom-menu[data-open=true]::before{opacity:0}
+ .bloom-menu .menu-button{display:grid;place-items:center;position:relative;z-index:3;width:44px;height:44px;min-height:44px;padding:0;margin:0;color:var(--paper);background:none;border:0;transform:none}
+ .menu-button .control-inner{display:grid;place-items:center}
+ .menu-surface{position:absolute;right:0;top:0;width:240px;height:min(344px,calc(100dvh - 100px));border-radius:22px;background:var(--red);pointer-events:none;z-index:0;transform-origin:calc(100% - 22px) 22px;transform:scale(.88,.82);opacity:0;transition:transform 240ms var(--ease-close),opacity 160ms var(--ease-close)}
+ .bloom-menu[data-open=true] .menu-surface{transform:none;opacity:1;transition:transform 450ms var(--ease-soft),opacity 160ms var(--ease-soft)}
+ .bloom-menu .mobile-nav{position:absolute;right:0;top:0;z-index:2;box-sizing:border-box;width:240px;margin:0;max-height:calc(100dvh - 100px);overflow:auto;overscroll-behavior:contain;border:0;padding:72px 16px 16px;display:flex;flex-direction:column;gap:4px;color:var(--paper);opacity:0;transform:none;pointer-events:none;transition:opacity 120ms var(--ease-close)}
+ .bloom-menu[data-open=true] .mobile-nav{opacity:1;transform:none;pointer-events:auto;transition:opacity 180ms var(--ease-soft) 60ms}
+ .bloom-menu .mobile-nav a{display:flex;align-items:center;flex-shrink:0;box-sizing:border-box;height:48px;min-height:48px;padding:14px 12px;border-radius:10px;font:500 14px/20px var(--sans);opacity:1;transform:none;transition:opacity 120ms var(--ease-soft)}
+ .bloom-menu .mobile-nav a[aria-current=page]{color:var(--paper);text-decoration:underline;text-underline-offset:5px;background:#ffffff16}
+ .bloom-menu .mobile-nav a::after{display:none}
+ .bloom-menu .mobile-nav a:focus-visible{outline-offset:-3px}
+ .menu-fallback{display:flex;flex-wrap:wrap;gap:16px;font-size:12px}
+}
+@media(hover:hover) and (pointer:fine){.bloom-menu .menu-button:hover{transform:none}.bloom-menu .mobile-nav a:hover{background:#ffffff16;transform:none}}
+@media(prefers-reduced-motion:reduce){.bloom-menu .menu-surface,.bloom-menu[data-open=true] .menu-surface{transform:none;transition:opacity 160ms var(--ease-soft)}.bloom-menu .mobile-nav,.bloom-menu[data-open=true] .mobile-nav{transition:opacity 120ms var(--ease-soft)}}
+.bloom-menu[data-instant=true] .menu-surface,.bloom-menu[data-instant=true] .mobile-nav,.bloom-menu[data-instant=true]::before{transition:none!important}

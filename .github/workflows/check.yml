@@ -37,6 +37,16 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: .github/check/package-lock.json
+      - name: Модель конструктора и жизненный цикл навигации
+        working-directory: .
+        run: |
+          python3 scripts/build-pages.py
+          node scripts/check-builder.mjs
+          node scripts/check-builder-lifecycle.mjs
+          node scripts/check-motion.mjs
+          node scripts/check-navigation.mjs
+          node scripts/check-navigation-fallback.mjs
+          python3 scripts/build-preview.py
       - run: npm ci
       - run: npx playwright install --with-deps --only-shell chromium
       - name: Проверка

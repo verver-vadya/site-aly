@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-24",
+  "tool": "Built-in OpenAI image_gen in Codex; exact model not returned",
+  "assets": [
+    {
+      "file": "assets/images/flower-stems.webp",
+      "archivedFile": "photos/flower-stems-reference.webp",
+      "use": "Transparent sprite atlas; four species for interactive canvas, also thumbnails",
+      "prompt": "A production sprite atlas for a photorealistic interactive florist bouquet configurator. Landscape canvas, aspect ratio 3:2, genuinely transparent background. Four equally spaced VERTICAL COLUMNS, each occupies EXACTLY one quarter of the canvas width. Each column contains exactly ONE complete long flower stem, full cut stem from bottom to flower at top, no cropping. First column: creamy ivory garden rose, beautifully open layered petals, two natural dark sage green leaves. Second column: scarlet red ranunculus with dense delicate curled petals, two leaves. Third column: dusty blush pink cosmos, wine-dark center, delicate feathery foliage. Fourth column: dark burgundy anthurium, sculptural heart-shaped spathe and pale spadix, elegant green stem and leaf. All four have same stem bottom level at 94 percent image height and blossom centered at 18 percent image height. Each stem and its leaves stays entirely inside its own quarter column with empty transparent margin at column edges. Do not overlap columns, no vase, no paper, no ribbon, no ground plane, no cast shadows, no labels, no graphics. Real botanical macro cutout photography with delicate translucency, slightly irregular imperfect petals and gently curved stems. Soft studio daylight from upper left, Kodak Portra 400 muted natural rendering, very fine film grain. Flower heads large enough for beautiful detailed product photography. The transparent areas must have real alpha, not checkerboard. No text, no logos, no watermark."
+    },
+    {
+      "file": "assets/images/workshop.webp",
+      "use": "Atelier story; fictional process, not real staff",
+      "prompt": "Editorial documentary close-up photograph for a fictional premium floral atelier website, landscape 3:2. Tight crop of only two realistic adult florist hands gently tying a thin wine-red silk ribbon around the stems of a small airy bouquet lying diagonally on a warm pale limestone workbench; ivory garden roses, scarlet ranunculus, dusty blush cosmos and sculptural dark burgundy anthurium, dark green leaves, linen cloth, a few trimmed stem offcuts. Hands have natural skin texture, anatomically correct fingers, no jewelry, no face visible. Relaxed and believable real work moment, no staged glamour. The bouquet occupies the left two thirds, hands tying stems in lower right. Soft side window light from upper left, subdued warm cream #f5f1e8 and oxblood palette, Kodak Portra 400, 50mm f/2.8, slight fine film grain, unretouched documentary feel. Do not include a shop sign, brand, lettering, packages, text, logos, watermark."
+    }
+  ]
+}

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://example.ru/</loc></url>
-  <url><loc>https://example.ru/privacy.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/catalog.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/builder.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/events.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/atelier.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/contacts.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/bouquet-nezhno.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/bouquet-smelo.html</loc></url>
+  <url><loc>https://verver-vadya.github.io/site-aly/bouquet-po-svoemu.html</loc></url>
 </urlset>

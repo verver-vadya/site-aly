@@ -1,0 +1,40 @@
+<section class="builder-heading"><div><p class="eyebrow">ТВОЙ МАЛЕНЬКИЙ ЦВЕТОЧНЫЙ ЭКСПЕРИМЕНТ</p><h1>Как чувствуешь.<br><i>Так и собирай.</i></h1></div><p>Начни с палитры, добавь любимые цветы.<br>Пусть получится по-твоему.</p></section>
+<div class="builder-layout" data-builder>
+  <section class="builder-preview" aria-label="Твой букет">
+    <div class="preview-topline"><span>Эскиз № 01 / Алый</span><span data-palette-label>Садовая</span></div>
+    <div class="bouquet-canvas"><img class="preview-placeholder" src="assets/images/tender.webp" width="1024" height="1536" alt="Пример свободной цветочной композиции"><canvas width="1520" height="1700" role="img" aria-label="Эскиз твоего букета"></canvas><p class="preview-loading" data-loading>Раскладываем цветы…</p></div>
+    <div class="preview-caption"><span>Сезонные цветы / свободная форма</span><em>Только твоё сочетание.</em></div>
+  </section>
+  <div class="builder-controls">
+    <noscript><p>Чтобы собрать свой букет и сохранить картинку, включи JavaScript. А пока можно <a class="text-link" href="catalog.html">посмотреть готовые букеты</a>.</p><style>.builder-controls form,.builder-summary{display:none}.preview-loading{display:none}</style></noscript>
+    <form aria-label="Собрать свой букет">
+      <fieldset><legend><small>01</small> Сначала — настроение</legend><div class="choice-group">
+        <label class="choice"><input type="radio" name="palette" value="milk"><span class="palette-dot" aria-hidden="true"></span>Молочная</label>
+        <label class="choice"><input type="radio" name="palette" value="red"><span class="palette-dot red" aria-hidden="true"></span>Алая</label>
+        <label class="choice"><input type="radio" name="palette" value="garden" checked><span class="palette-dot garden" aria-hidden="true"></span>Садовая</label>
+      </div><p class="field-hint">Готовое сочетание — отправная точка. Любой цветок можно добавить или убрать.</p></fieldset>
+      <fieldset><legend><small>02</small> Цветы с характером</legend><div class="flower-rows">
+        FLOWER_ROWS
+      </div><p class="field-hint">От одного цветка до 35. Стоимость каждого стебля условная.</p></fieldset>
+      <fieldset><legend><small>03</small> Сколько хочется сказать?</legend><div class="choice-group">
+        <label class="choice size-choice"><input type="radio" name="size" value="small" checked>Камерно<small>7 цветов</small></label>
+        <label class="choice size-choice"><input type="radio" name="size" value="medium">От души<small>13 цветов</small></label>
+        <label class="choice size-choice"><input type="radio" name="size" value="large">Без лишних слов<small>19 цветов</small></label>
+      </div><p class="field-hint" data-custom-size hidden>У тебя свой объём. Готовый размер пересчитает текущее сочетание.</p></fieldset>
+      <fieldset><legend><small>04</small> Последний штрих</legend><div class="finishing">
+        <div class="finishing-group" role="group" aria-label="Упаковка"><p>Упаковка</p><div class="choice-group">
+          WRAP_CHOICES
+        </div></div>
+        <div class="finishing-group" role="group" aria-label="Лента"><p>Лента</p><div class="choice-group">
+          RIBBON_CHOICES
+        </div></div>
+      </div></fieldset>
+    </form>
+    <div class="builder-summary"><div class="summary-price" aria-live="polite" aria-atomic="true"><span><span data-stem-count>7 цветов</span><br>Условная стоимость</span><strong data-price>2 550 ₽</strong></div><p class="builder-composition" data-composition></p>
+      <button class="cta" type="button" data-save disabled>Сохранить мой букет <morph-icon icon="M12 3v12M7 10l5 5 5-5M5 16v4h14v-4" reduced-motion="user" size="22" stroke-width="1.6" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12M7 10l5 5 5-5M5 16v4h14v-4"/></svg></morph-icon></button>
+      <div class="builder-afterword"><p>PNG с твоим букетом и составом.<br>Без регистрации и отправки данных.</p><button class="reset-builder" type="button" data-reset>Начать заново</button></div>
+      <p class="builder-status" role="status" data-builder-status></p>
+    </div>
+  </div>
+</div>
+<aside class="builder-footer-note"><p>Это творческий конструктор портфолио-концепта. Цветы сгенерированы, композиция — визуальный эскиз. Реальная сборка будет отличаться. Все цены условные, заказа и оплаты здесь нет. Твой выбор сохраняется только в этом браузере.</p></aside>

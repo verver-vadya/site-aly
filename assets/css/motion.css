@@ -1,0 +1,95 @@
+:root {
+  --ease-soft: cubic-bezier(.35,0,.15,1);
+  --ease-close: cubic-bezier(.4,0,.2,1);
+  --ease-hover: cubic-bezier(.45,0,.25,1);
+  --ease-quick: cubic-bezier(.23,1,.32,1);
+  --d-press: 160ms;
+  --d-release: 200ms;
+  --d-hover: 240ms;
+  --d-line: 500ms;
+  --d-page-out: 250ms;
+  --d-page-in: 450ms;
+}
+/* Transitions retarget from the current position during rapid hover/press. */
+button, a, summary {
+  transition: transform var(--d-release) var(--ease-soft), opacity var(--d-release) var(--ease-soft);
+}
+.control-inner { display:inline-block; transition:transform var(--d-press) var(--ease-quick) }
+.cta .control-inner { display:flex; align-items:center; justify-content:space-between; gap:inherit; width:100%;font:inherit }
+.motion-arrow { display:inline-block; transition:transform var(--d-hover) var(--ease-soft) }
+.cta { position:relative; isolation:isolate }
+.cta::before { content:''; position:absolute; inset:0; background:#000; opacity:0; z-index:-1; transition:opacity var(--d-hover) var(--ease-soft) }
+/* Lines paint once, then reveal through a compositor transform. */
+:is(header nav,.mobile-nav) a,.header-link,.text-link,.event-bottom a,.hero-bottom a,footer> a:not(.brand) { position:relative }
+:is(header nav,.mobile-nav) a::after,.header-link::after,.text-link::after,.event-bottom a::after,.hero-bottom a::after,footer> a:not(.brand)::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:currentColor;
+  transform:scaleX(0); transform-origin:right; transition:transform var(--d-line) var(--ease-hover);
+}
+.header-link,.text-link,.event-bottom a { border-bottom-color:transparent }
+button:active,.cta:active { transform:none }
+:is(button,.cta):active .control-inner { transform:scale(.97) }
+.bouquet-list a:active,.product-card a:active { transform:scale(.985) }
+@media(hover:hover) and (pointer:fine) {
+  a:hover,button:hover { opacity:1 }
+  .cta:hover { transform:translateY(-3px) }
+  .cta:hover::before { opacity:.09 }
+  :is(.cta,.header-link,.text-link,.bouquet-list a,.event-bottom a,.hero-bottom a):hover .motion-arrow { transform:translate(4px,-3px) }
+  .catalog-filters button:hover,.menu-button:hover { transform:translateY(-2px) }
+  .catalog-filters button:hover .control-inner { transform:translateY(-1px) }
+  :is(header nav,.mobile-nav) a:hover::after,.header-link:hover::after,.text-link:hover::after,.event-bottom a:hover::after,.hero-bottom a:hover::after,footer> a:not(.brand):hover::after { transform:scaleX(1); transform-origin:left }
+  .bouquet-list a:hover { transform:translateX(6px) }
+  .brand:hover svg { transform:rotate(12deg) }
+  .brand svg { transition:transform var(--d-hover) var(--ease-soft) }
+  .care summary:hover { transform:translateX(3px) }
+}
+/* Focus is immediate; keyboard-triggered controls do not slide or scale. */
+:is(button,a,summary):focus-visible { transition:none }
+:is(button,a,summary):focus-visible:active,:is(button,.cta):focus-visible:active .control-inner { transform:none }
+:is(header nav,.mobile-nav) a:focus-visible::after,.header-link:focus-visible::after,.text-link:focus-visible::after { transform:scaleX(1);transition:none }
+/* Native MPA transitions preserve navigation, history and first-load rendering. */
+@view-transition { navigation:auto }
+html { background:var(--paper) }
+::view-transition { background:var(--paper) }
+::view-transition { pointer-events:none }
+.route-announcer{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+html[data-route-loading=true] header{border-bottom-color:var(--red)}
+main[tabindex="-1"]:focus{outline:none}
+header { view-transition-name:site-header }
+main { view-transition-name:page-content }
+main h1 { view-transition-name:page-title }
+::view-transition-group(*) { animation-duration:450ms;animation-timing-function:var(--ease-soft) }
+::view-transition-group(site-header),::view-transition-old(site-header),::view-transition-new(site-header) { animation:none }
+/* Background snapshots stay opaque; only content leaves and arrives. */
+::view-transition-old(root){animation:none;opacity:0;mix-blend-mode:normal}
+::view-transition-new(root){animation:none;opacity:1;mix-blend-mode:normal}
+::view-transition-old(page-content){animation:composition-out 200ms var(--ease-close) both;mix-blend-mode:normal}
+::view-transition-new(page-content){animation:composition-in 350ms var(--ease-soft) both;mix-blend-mode:normal}
+::view-transition-old(site-header){display:none}
+::view-transition-new(site-header){mix-blend-mode:normal}
+::view-transition-image-pair(*){isolation:isolate}
+::view-transition-old(page-title),::view-transition-new(page-title){mix-blend-mode:normal}
+::view-transition-old(page-title) { animation:title-out 250ms var(--ease-close) both }
+::view-transition-new(page-title) { animation:title-in 450ms var(--ease-soft) 80ms both }
+::view-transition-group(photo-nezhno),::view-transition-group(photo-smelo),::view-transition-group(photo-po-svoemu) { animation-duration:500ms;animation-timing-function:var(--ease-soft) }
+::view-transition-old(photo-nezhno),::view-transition-old(photo-smelo),::view-transition-old(photo-po-svoemu),::view-transition-new(photo-nezhno),::view-transition-new(photo-smelo),::view-transition-new(photo-po-svoemu){height:100%;width:100%;object-fit:cover}
+@keyframes composition-out { to{opacity:0;transform:translateY(-8px)} }
+@keyframes composition-in { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes title-out { to{opacity:0;transform:translateY(-20px)} }
+@keyframes title-in { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+/* Firefox/Zen: an arriving composition on the normal, opaque page canvas.
+   Content stays visible throughout; there is no curtain or loading cover. */
+html[data-page-entry=true] main > * { animation:page-arrive 350ms var(--ease-quick) both }
+html[data-page-entry=true] main > :nth-child(2) { animation-delay:35ms }
+html[data-page-entry=true] main > :nth-child(n+3) { animation-delay:70ms }
+@keyframes page-arrive { from{opacity:.6;transform:translateY(16px)} to{opacity:1;transform:none} }
+@media(prefers-reduced-motion:reduce){
+ @view-transition { navigation:none }
+ html[data-page-entry=true] main > * { animation:none }
+ html{scroll-behavior:auto}
+ a,button,summary,.control-inner,.motion-arrow,.brand svg,.product-image img{transition:opacity 160ms var(--ease-soft)}
+ a:hover,button:hover,summary:hover,a:active,button:active,.control-inner,.brand:hover svg,.product-card a:hover img,:is(.cta,.header-link,.text-link,.bouquet-list a,.event-bottom a,.hero-bottom a):hover .motion-arrow,.catalog-filters button:hover .control-inner,:is(button,.cta):active .control-inner{transform:none!important}
+ a::after{transition:none!important}
+}
+
+/* Original stem-like UI strokes; fixed boxes keep text and buttons aligned. */
+.ui-icon{display:inline-block;width:20px;height:20px;vertical-align:-.22em;flex-shrink:0}.motion-arrow{display:inline-flex;align-items:center;justify-content:center}.motion-arrow .ui-icon{display:block}.header-link .ui-icon,.text-link .ui-icon,.event-bottom .ui-icon{width:16px;height:16px}.ui-icon,morph-icon svg,.flower-counter svg{stroke-linecap:round;stroke-linejoin:round}

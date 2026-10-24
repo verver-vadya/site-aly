@@ -89,7 +89,7 @@ const placeholder = (where, message) => report(RELEASE ? "error" : "warn", where
 // ---------- статический сервер: как хостинг, несуществующий адрес отдаёт 404.html ----------
 
 const TYPES = {
-  ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript",
+  ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript",
   ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
   ".webp": "image/webp", ".avif": "image/avif", ".woff2": "font/woff2", ".xml": "application/xml",
   ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon", ".pdf": "application/pdf",

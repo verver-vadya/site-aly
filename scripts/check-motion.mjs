@@ -25,7 +25,9 @@ for(const page of ['index.html','catalog.html','bouquet-nezhno.html','bouquet-sm
  assert.equal(names.length,page==='catalog.html'?3:page.startsWith('bouquet-')?1:0,page+' has missing or extra shared photos');
  assert(html.includes('assets/js/motion.js?v='),page+' is missing the navigation accessibility controller');
  assert(html.includes('assets/js/navigation.js?v='),page+' is missing the shared transition controller');
- assert(html.includes('<head><script src="assets/js/page-entry.js?v='),page+' is missing the early fallback entry controller');
+ // A 404 needs its base before any relative script URL on nested paths.
+ const earlyHead=page==='404.html'?'<head><base href="/"><script src="assets/js/page-entry.js?v=':'<head><script src="assets/js/page-entry.js?v=';
+ assert(html.includes(earlyHead),page+' is missing the early fallback entry controller');
  assert(html.includes('data-menu-icon'),page+' is missing menu icon');
  assert(html.includes('assets/js/icons.js'),page+' is missing icon loader');
  assert(html.includes('aria-controls="mobile-nav"'),page+' is missing menu controls');

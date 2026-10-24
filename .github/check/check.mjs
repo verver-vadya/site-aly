@@ -315,9 +315,17 @@ async function revealAll(page) {
       window.scrollTo(0, y);
       await wait(60);
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({top:0,behavior:"instant"});
     await wait(800);
   });
+}
+
+// Layout/overlap probes scroll to inspected elements. Restore the viewport
+// before capturing sticky content, and wait for the real constructor canvas.
+async function readyForShot(page) {
+  await page.evaluate(()=>document.fonts.ready);
+  if(await page.locator('.bouquet-canvas').count())await page.locator('.bouquet-canvas.is-ready').waitFor({state:'visible',timeout:15000});
+  await page.evaluate(()=>{window.scrollTo({top:0,behavior:'instant'});return new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))});
 }
 
 // Наложения: картинка или другой текст наезжает на текст. Края картинки, задевающие строку, — ошибка,
@@ -326,6 +334,7 @@ async function revealAll(page) {
 function scanOverlap(scope) {
   // Скрытое визуально (в том числе .visually-hidden для экранного диктора) не считается
   const shown = (el) => {
+    if(el.checkVisibility&&!el.checkVisibility())return false;
     for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
       const s = getComputedStyle(n);
       const r = n.getBoundingClientRect();
@@ -793,13 +802,13 @@ while (queue.length) {
     const where = `${pathname} (${sizeLabel(size)})`;
     const flush = watchPage(page, where, origin);
     await page.goto(url.href, { waitUntil: "load" });
-    if (size.shot === "screen") await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${sizeFile(size)}-screen.png`) });
+    if (size.shot === "screen") {await readyForShot(page);await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${sizeFile(size)}-screen.png`) });}
     await revealAll(page);
     await checkLayout(page, where, width);
     await checkOverlap(page, pathname, sizeLabel(size));
     if (size.audit || width === 1920) await checkHoverOverlap(page, pathname, sizeLabel(size));
     if (width === 375) await checkHitArea(page, where);
-    if (size.shot === "full") await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${width}.png`), fullPage: true });
+    if (size.shot === "full") {await readyForShot(page);await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${width}.png`), fullPage: true });}
     if (size.boxes) boxes.set(`${pathname}|${sizeFile(size)}`, await measureBoxes(page));
 
     if (size.audit) {
@@ -817,7 +826,12 @@ while (queue.length) {
         if (!seen.has(clean)) queue.push(clean);
       }
       const og = await page.locator('meta[property="og:image"]').getAttribute("content").catch(() => null);
-      if (og && !(await resolveFile(new URL(og, url).pathname))) placeholder(pathname, `нет картинки для превью в мессенджерах: ${new URL(og, url).pathname}`);
+      if(og){
+        let imagePath=new URL(og,url).pathname;
+        const canonical=await page.locator('link[rel="canonical"]').getAttribute('href').catch(()=>null);
+        if(canonical){const published=new URL(canonical),prefix=new URL('.',published).pathname;if(new URL(og,url).origin===published.origin&&imagePath.startsWith(prefix))imagePath='/'+imagePath.slice(prefix.length)}
+        if(!(await resolveFile(imagePath)))placeholder(pathname,`нет картинки для превью в мессенджерах: ${imagePath}`);
+      }
       const forms = await page.locator("form[data-form]").count();
       for (let i = 0; i < forms; i++) await checkForm(browser, url, i);
     }

@@ -90,8 +90,12 @@ def write(name, title, content, current=None):
         page_head = page_head.replace('</head>', ''.join(f'<link rel="preload" as="image" href="assets/images/{asset}.webp">' for asset in ['flower-heads','flower-heads-extra','foliage','bare-stems','satin-bow','paper-texture','paper-front']) + '</head>')
         page_head = re.sub(r'(href|src)="(assets/(?:css|js)/[^"?]+)"', version_asset, page_head)
     body = page_shell + '<main id="main">' + content + '</main>' + footer
+    # These transparent cutouts intentionally share space with the composition.
+    # Mark the artwork only; surrounding text remains in the overlap audit.
+    body = body.replace('class="hero-flower"', 'class="hero-flower" data-overlap-ok')
+    body = body.replace('class="flower-word"', 'class="flower-word" data-overlap-ok')
     body = re.sub(r'(<a class="brand"[^>]*>).*?</a>', lambda match: match.group(1) + f'<img class="brand-logo" src="{brand_url("logo.svg")}" width="240" height="80" alt="Алый"></a>', body)
-    body = re.sub(r'<svg class="event-mark"[^>]*>.*?</svg>', f'<img class="event-mark" src="{brand_url("mark.svg")}" width="64" height="64" alt="">', body)
+    body = re.sub(r'<svg class="event-mark"[^>]*>.*?</svg>', f'<img class="event-mark" data-overlap-ok src="{brand_url("mark.svg")}" width="64" height="64" alt="">', body)
     menu_path = icons['menu']
     icon = f'<morph-icon data-menu-icon icon="{menu_path}" reduced-motion="user" size="22" stroke-width="1.6" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="{menu_path}"/></svg></morph-icon>'
     trigger = f'<div class="bloom-menu" data-open="false"><div class="menu-surface" aria-hidden="true">' + '' + f'</div><button class="menu-button" aria-label="Меню" aria-expanded="false" aria-controls="mobile-nav">{icon}</button>'
@@ -161,7 +165,7 @@ flower_rows = ''
 for i, flower in enumerate(builder_catalog['flowers']):
     name, price, count = flower['name'], flower['price'], flower['defaultCount']
     sheet = 'flower-heads' if i < 4 else 'flower-heads-extra'
-    flower_rows += f'''<div class="flower-row" data-flower="{i}"><span class="flower-sample" style="--flower-col:{i%2};--flower-row:{(i%4)//2};--flower-sheet:url('assets/images/{sheet}.webp')" aria-hidden="true"></span><div class="flower-name">{name}<small>{price} ₽ / стебель</small></div><div class="flower-counter"><button type="button" data-delta="-1" aria-label="Убрать: {name}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14"/></svg></button><output aria-label="{name}: количество">{count}</output><button type="button" data-delta="1" aria-label="Добавить: {name}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div></div>'''
+    flower_rows += f'''<div class="flower-row" data-flower="{i}"><span class="flower-sample" data-sheet="{'extra' if i >= 4 else 'base'}" style="--flower-col:{i%2};--flower-row:{(i%4)//2}" aria-hidden="true"></span><div class="flower-name">{name}<small>{price} ₽ / стебель</small></div><div class="flower-counter"><button type="button" data-delta="-1" aria-label="Убрать: {name}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14"/></svg></button><output aria-label="{name}: количество">{count}</output><button type="button" data-delta="1" aria-label="Добавить: {name}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></div></div>'''
 def material_choices(kind, selected):
     return ''.join(f'<label class="choice"><input type="radio" name="{kind}" value="{key}"' + (' checked' if key == selected else '') + '>' + (f'<span class="material-dot {kind}-dot" style="--swatch:{item["color"]}" aria-hidden="true"></span>' if item['color'] else '') + item['label'] + '</label>' for key,item in builder_catalog['wraps' if kind == 'wrap' else 'ribbons'].items())
 builder = builder.replace('WRAP_CHOICES',material_choices('wrap','none')).replace('RIBBON_CHOICES',material_choices('ribbon','wine'))

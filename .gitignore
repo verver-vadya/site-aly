@@ -6,3 +6,9 @@ node_modules/
 *.log
 .check/
 .base-site/
+
+/assets/images/*.png
+
+/review/motion-frames/
+/photos/*-source.png
+/.publish/

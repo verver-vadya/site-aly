@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-24",
+  "tool": "Built-in OpenAI image_gen in Codex; exact model not returned",
+  "assets": [
+    {
+      "file": "assets/images/flower-heads.webp",
+      "role": "Four head-only sprite cells for depth-ordered bouquet layout and thumbnails",
+      "prompt": "A production sprite atlas for an interactive photorealistic bouquet configurator. Landscape canvas aspect 3:2, genuinely transparent background with real alpha. EXACTLY FOUR separate flower HEADS in a clean 2 by 2 grid, each isolated in its own equal quadrant. Upper left: a creamy ivory garden rose, open bloom with many delicately curled imperfect petals. Upper right: a scarlet red ranunculus with dense delicate concentric petals. Lower left: a dusty blush pink cosmos, delicate slightly irregular broad petals with a dark wine and yellow center. Lower right: a dark burgundy anthurium, sculptural heart shaped spathe with a pale yellow spadix, subtle glossy veins. There are NO STEMS and NO GREEN LEAVES anywhere, ONLY the entire bloom itself, natural clean cutout edges. Every flower is entirely inside its own quadrant with generous transparent margins, no overlap between quadrants and no cropped petals. Flower heads centered at the exact center of each quadrant, roughly 70 percent of quadrant height, similarly scaled. Slightly different natural three-quarter viewing angles, faces mostly towards camera, useful for assembling a bouquet photograph. Soft studio daylight from upper left, muted Kodak Portra 400 color rendering, botanical macro product photography, fine natural details. No ground plane, no shadows outside the subjects, no background colors. No text, no logos, no watermark."
+    },
+    {
+      "file": "assets/images/foliage.webp",
+      "role": "A separate three-leaf branch; 1–3 branches per bouquet, drawn behind paper",
+      "prompt": "A production botanical foliage cutout asset for an interactive premium flower bouquet configurator, genuinely transparent background with real alpha, portrait 2:3 canvas. ONE graceful small branch of dark natural sage-green rose foliage, a slender slightly curved muted green stem with only THREE organically asymmetric medium sized leaves at its upper part. Broad pointed softly serrated rose leaves, subtle veins, matte realistic surfaces, a few tiny natural imperfections. Full stem and all leaf tips entirely visible with transparent margin, all leaves clustered in the upper half, long clean lower stem ending at bottom center. Branch slightly leans left. This will be layered sparingly behind cream and scarlet flowers, not a dense foliage bouquet. Soft studio daylight from upper left, subdued Kodak Portra 400 natural botanical product photography, detailed natural unretouched texture. NO FLOWERS, no buds, no vase, no props, no paper, no ground plane, no cast shadow. No text, no logos, no watermark."
+    }
+  ]
+}

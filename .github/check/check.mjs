@@ -13,6 +13,7 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { splitSelectors } from "./selectors.mjs";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const OUT = path.join(ROOT, ".check");
@@ -89,7 +90,7 @@ const placeholder = (where, message) => report(RELEASE ? "error" : "warn", where
 // ---------- статический сервер: как хостинг, несуществующий адрес отдаёт 404.html ----------
 
 const TYPES = {
-  ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript",
+  ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript",
   ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
   ".webp": "image/webp", ".avif": "image/avif", ".woff2": "font/woff2", ".xml": "application/xml",
   ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon", ".pdf": "application/pdf",
@@ -150,8 +151,19 @@ function watchPage(page, where, origin) {
   return () => [...new Set(problems)].forEach((p) => error(where, p));
 }
 
+async function readSelectors(page) {
+  const raw=await page.evaluate(() => {
+    const out=[];
+    const collect=rules=>{for(const rule of rules){if(rule.selectorText)out.push(rule.selectorText);if(rule.cssRules)collect(rule.cssRules)}};
+    for(const sheet of document.styleSheets){try{collect(sheet.cssRules)}catch{/* external sheet */}}
+    return out;
+  });
+  return raw.flatMap(splitSelectors);
+}
+
 async function auditDom(page) {
-  return page.evaluate((year) => {
+  const selectors=await readSelectors(page);
+  return page.evaluate(({year,selectors}) => {
     const out = { errors: [], warns: [], links: [], title: document.title.trim() };
     const visible = (el) => {
       const r = el.getBoundingClientRect();
@@ -207,20 +219,13 @@ async function auditDom(page) {
     }
 
     // Кнопки: есть текст, есть состояния hover / нажатия / фокуса, у кнопок отправки есть disabled
-    const selectors = [];
-    const collect = (rules) => {
-      for (const rule of rules) {
-        if (rule.selectorText) selectors.push(...rule.selectorText.split(","));
-        if (rule.cssRules) collect(rule.cssRules);
-      }
-    };
-    for (const sheet of document.styleSheets) {
-      try { collect(sheet.cssRules); } catch { /* чужой домен */ }
-    }
     const hasState = (el, pseudo) => selectors.some((sel) => {
       if (!sel.includes(pseudo)) return false;
       const base = sel.replace(/:(hover|active|focus-visible|focus|disabled)\b/g, "").replace(/\[aria-disabled="true"\]/g, "").trim();
-      try { return el.matches(base || "*"); } catch { return false; }
+      // The pressed visual may live on an inner span, while the state is on
+      // the button itself (button:active .control-inner).
+      const anchor=sel.slice(0,sel.indexOf(pseudo)).trim();
+      return [base,anchor].some(candidate=>{try{return !!candidate&&el.matches(candidate)}catch{return false}});
     });
     const buttons = [...document.querySelectorAll('button, .button, [role="button"], input[type="submit"]')].filter(visible);
     for (const el of buttons) {
@@ -254,7 +259,9 @@ async function auditDom(page) {
         if (!policy) out.errors.push("в согласии нет ссылки на политику конфиденциальности");
       }
       const action = form.getAttribute("action");
-      if (!action && !form.hasAttribute("data-form")) out.errors.push("форма никуда не отправляет (нет action)");
+      const local=form.hasAttribute("data-local-form");
+      if(local&&(action||personal||form.querySelector('button[type="submit"],input[type="submit"]'))) out.errors.push("локальный конструктор содержит отправку или персональные поля");
+      if (!action && !form.hasAttribute("data-form") && !local) out.errors.push("форма никуда не отправляет (нет action)");
     }
 
     // Тексты
@@ -265,7 +272,7 @@ async function auditDom(page) {
     if (copy && Number(copy[1]) !== year) out.warns.push(`в подвале устаревший год: © ${copy[1]}`);
     out.text = text;
     return out;
-  }, YEAR);
+  }, {year:YEAR,selectors});
 }
 
 async function checkLayout(page, where, width) {
@@ -308,9 +315,17 @@ async function revealAll(page) {
       window.scrollTo(0, y);
       await wait(60);
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({top:0,behavior:"instant"});
     await wait(800);
   });
+}
+
+// Layout/overlap probes scroll to inspected elements. Restore the viewport
+// before capturing sticky content, and wait for the real constructor canvas.
+async function readyForShot(page) {
+  await page.evaluate(()=>document.fonts.ready);
+  if(await page.locator('.bouquet-canvas').count())await page.locator('.bouquet-canvas.is-ready').waitFor({state:'visible',timeout:15000});
+  await page.evaluate(()=>{window.scrollTo({top:0,behavior:'instant'});return new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))});
 }
 
 // Наложения: картинка или другой текст наезжает на текст. Края картинки, задевающие строку, — ошибка,
@@ -319,6 +334,7 @@ async function revealAll(page) {
 function scanOverlap(scope) {
   // Скрытое визуально (в том числе .visually-hidden для экранного диктора) не считается
   const shown = (el) => {
+    if(el.checkVisibility&&!el.checkVisibility())return false;
     for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
       const s = getComputedStyle(n);
       const r = n.getBoundingClientRect();
@@ -392,28 +408,17 @@ async function checkOverlap(page, pathname, label) {
 
 // То же при наведении: картинка, которая выезжает по :hover, не должна ложиться на соседний текст
 async function checkHoverOverlap(page, pathname, label) {
-  const bases = await page.evaluate(() => {
+  const selectors=await readSelectors(page);
+  const bases = await page.evaluate((selectors) => {
     const out = new Set();
-    const collect = (rules) => {
-      for (const rule of rules) {
-        if (rule.selectorText) {
-          for (const sel of rule.selectorText.split(",")) {
-            const m = sel.match(/^(.*?):hover[\s>+~]+\S/);
-            if (m && m[1].trim() && !/:/.test(m[1])) out.add(m[1].trim());
-          }
-        }
-        if (rule.cssRules) collect(rule.cssRules);
-      }
-    };
-    for (const sheet of document.styleSheets) {
-      try { collect(sheet.cssRules); } catch { /* чужой домен */ }
-    }
+    for(const sel of selectors){const m=sel.match(/^(.*?):hover[\s>+~]+\S/);if(m&&m[1].trim())out.add(m[1].trim())}
     let n = 0;
     for (const sel of out) {
-      for (const el of document.querySelectorAll(sel)) if (n < 12 && el.getBoundingClientRect().width) el.dataset.checkHover = String(n++);
+      let elements;try{elements=document.querySelectorAll(sel)}catch{continue}
+      for (const el of elements) if (n < 12 && el.getBoundingClientRect().width) el.dataset.checkHover = String(n++);
     }
     return n;
-  });
+  },selectors);
   const found = new Set();
   for (let i = 0; i < bases; i++) {
     const el = page.locator(`[data-check-hover="${i}"]`);
@@ -797,13 +802,13 @@ while (queue.length) {
     const where = `${pathname} (${sizeLabel(size)})`;
     const flush = watchPage(page, where, origin);
     await page.goto(url.href, { waitUntil: "load" });
-    if (size.shot === "screen") await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${sizeFile(size)}-screen.png`) });
+    if (size.shot === "screen") {await readyForShot(page);await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${sizeFile(size)}-screen.png`) });}
     await revealAll(page);
     await checkLayout(page, where, width);
     await checkOverlap(page, pathname, sizeLabel(size));
     if (size.audit || width === 1920) await checkHoverOverlap(page, pathname, sizeLabel(size));
     if (width === 375) await checkHitArea(page, where);
-    if (size.shot === "full") await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${width}.png`), fullPage: true });
+    if (size.shot === "full") {await readyForShot(page);await page.screenshot({ path: path.join(OUT, "screenshots", `${name}-${width}.png`), fullPage: true });}
     if (size.boxes) boxes.set(`${pathname}|${sizeFile(size)}`, await measureBoxes(page));
 
     if (size.audit) {
@@ -821,7 +826,12 @@ while (queue.length) {
         if (!seen.has(clean)) queue.push(clean);
       }
       const og = await page.locator('meta[property="og:image"]').getAttribute("content").catch(() => null);
-      if (og && !(await resolveFile(new URL(og, url).pathname))) placeholder(pathname, `нет картинки для превью в мессенджерах: ${new URL(og, url).pathname}`);
+      if(og){
+        let imagePath=new URL(og,url).pathname;
+        const canonical=await page.locator('link[rel="canonical"]').getAttribute('href').catch(()=>null);
+        if(canonical){const published=new URL(canonical),prefix=new URL('.',published).pathname;if(new URL(og,url).origin===published.origin&&imagePath.startsWith(prefix))imagePath='/'+imagePath.slice(prefix.length)}
+        if(!(await resolveFile(imagePath)))placeholder(pathname,`нет картинки для превью в мессенджерах: ${imagePath}`);
+      }
       const forms = await page.locator("form[data-form]").count();
       for (let i = 0; i < forms; i++) await checkForm(browser, url, i);
     }

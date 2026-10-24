@@ -22,7 +22,7 @@
 .field-hint{font-size:11px;color:var(--muted);line-height:1.7;margin:12px 0 0}.flower-rows{display:grid;gap:2px}
 .flower-row{display:grid;grid-template-columns:32px minmax(0,1fr) 120px;gap:10px;align-items:center;min-height:68px;border-bottom:1px solid #cfc7b966}.flower-row:last-child{border:0}
 .flower-sample{width:30px;height:38px;position:relative;overflow:hidden;opacity:.45}.is-included .flower-sample{opacity:1}
-.flower-sample::before{content:'';position:absolute;width:80px;height:53.3333px;top:calc(6px - var(--flower-row)*26.6667px);left:calc(-5px - var(--flower-col)*40px);background:url('../images/flower-heads.webp') center/100% 100% no-repeat}
+.flower-sample::before{content:'';position:absolute;width:40px;height:26.6667px;top:6px;left:-5px;background:url('../images/flower-heads.webp') calc(var(--flower-col)*100%) calc(var(--flower-row)*100%)/200% 200% no-repeat}
 .flower-sample[data-sheet=extra]::before{background-image:url('../images/flower-heads-extra.webp')}
 .flower-name{font-size:12px;line-height:1.6}.flower-name small{display:block;font-size:10px;color:var(--muted)}
 .flower-counter{display:grid;grid-template-columns:44px 24px 44px;align-items:center;justify-content:end;gap:4px;font-size:12px}.flower-counter button{display:grid;place-items:center;width:44px;min-height:44px;padding:0;border:1px solid transparent}.flower-counter button:not(:disabled){border-color:var(--line)}.flower-counter button .control-inner{display:grid;place-items:center}.flower-counter svg{width:14px;height:14px;display:block}.flower-counter output{text-align:center;font-variant-numeric:tabular-nums}
